@@ -1,0 +1,265 @@
+{
+  "info": {
+    "name": "Movie Booking System - Auth APIs",
+    "description": "Complete collection of Authentication APIs for the Movie Booking System. Includes Register, Login, Refresh Token, Logout, and Get Current User endpoints.\n\n**Base URL:** `http://localhost:3000/api/v1`\n\n**Authentication:** Protected endpoints (Logout, Me) require a Bearer access token.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3000/api/v1",
+      "type": "string"
+    },
+    {
+      "key": "accessToken",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "refreshToken",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Register",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/auth/register",
+          "host": ["{{baseUrl}}"],
+          "path": ["auth", "register"]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"firstName\": \"John\",\n  \"lastName\": \"Doe\",\n  \"email\": \"john.doe@example.com\",\n  \"password\": \"password123\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "description": "Register a new user. Returns user details and JWT tokens.\n\n**Validation Rules:**\n- `firstName`: Required, string\n- `lastName`: Required, string\n- `email`: Required, valid email format\n- `password`: Required, minimum 8 characters\n\n**Response (201 Created):**\n```json\n{\n  \"user\": {\n    \"id\": \"clx...\",\n    \"firstName\": \"John\",\n    \"lastName\": \"Doe\",\n    \"email\": \"john.doe@example.com\"\n  },\n  \"tokens\": {\n    \"accessToken\": \"eyJhbGciOiJIUzI1NiIs...\",\n    \"refreshToken\": \"eyJhbGciOiJIUzI1NiIs...\"\n  }\n}\n```\n\n**Error Responses:**\n- `409 Conflict`: Email already exists\n- `400 Bad Request`: Validation failed"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status code is 201', function () {",
+              "    pm.response.to.have.status(201);",
+              "});",
+              "",
+              "pm.test('Response has user and tokens', function () {",
+              "    const response = pm.response.json();",
+              "    pm.expect(response).to.have.property('user');",
+              "    pm.expect(response).to.have.property('tokens');",
+              "    pm.expect(response.tokens).to.have.property('accessToken');",
+              "    pm.expect(response.tokens).to.have.property('refreshToken');",
+              "});",
+              "",
+              "if (pm.response.code === 201) {",
+              "    const response = pm.response.json();",
+              "    pm.collectionVariables.set('accessToken', response.tokens.accessToken);",
+              "    pm.collectionVariables.set('refreshToken', response.tokens.refreshToken);",
+              "}"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Login",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/auth/login",
+          "host": ["{{baseUrl}}"],
+          "path": ["auth", "login"]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"email\": \"john.doe@example.com\",\n  \"password\": \"password123\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "description": "Login with email and password. Returns user details and JWT tokens.\n\n**Validation Rules:**\n- `email`: Required, valid email format\n- `password`: Required, minimum 8 characters\n\n**Response (200 OK):**\n```json\n{\n  \"user\": {\n    \"id\": \"clx...\",\n    \"firstName\": \"John\",\n    \"lastName\": \"Doe\",\n    \"email\": \"john.doe@example.com\"\n  },\n  \"tokens\": {\n    \"accessToken\": \"eyJhbGciOiJIUzI1NiIs...\",\n    \"refreshToken\": \"eyJhbGciOiJIUzI1NiIs...\"\n  }\n}\n```\n\n**Error Responses:**\n- `401 Unauthorized`: Invalid credentials\n- `400 Bad Request`: Validation failed"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status code is 200', function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test('Response has user and tokens', function () {",
+              "    const response = pm.response.json();",
+              "    pm.expect(response).to.have.property('user');",
+              "    pm.expect(response).to.have.property('tokens');",
+              "    pm.expect(response.tokens).to.have.property('accessToken');",
+              "    pm.expect(response.tokens).to.have.property('refreshToken');",
+              "});",
+              "",
+              "if (pm.response.code === 200) {",
+              "    const response = pm.response.json();",
+              "    pm.collectionVariables.set('accessToken', response.tokens.accessToken);",
+              "    pm.collectionVariables.set('refreshToken', response.tokens.refreshToken);",
+              "}"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Refresh Token",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/auth/refresh",
+          "host": ["{{baseUrl}}"],
+          "path": ["auth", "refresh"]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"refreshToken\": \"{{refreshToken}}\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "description": "Refresh the access token using a valid refresh token. Returns new JWT tokens.\n\n**Validation Rules:**\n- `refreshToken`: Required, non-empty string\n\n**Response (200 OK):**\n```json\n{\n  \"accessToken\": \"eyJhbGciOiJIUzI1NiIs...\",\n  \"refreshToken\": \"eyJhbGciOiJIUzI1NiIs...\"\n}\n```\n\n**Error Responses:**\n- `401 Unauthorized`: Invalid or expired refresh token\n- `400 Bad Request`: Validation failed"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status code is 200', function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test('Response has new tokens', function () {",
+              "    const response = pm.response.json();",
+              "    pm.expect(response).to.have.property('accessToken');",
+              "    pm.expect(response).to.have.property('refreshToken');",
+              "});",
+              "",
+              "if (pm.response.code === 200) {",
+              "    const response = pm.response.json();",
+              "    pm.collectionVariables.set('accessToken', response.accessToken);",
+              "    pm.collectionVariables.set('refreshToken', response.refreshToken);",
+              "}"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Logout",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/auth/logout",
+          "host": ["{{baseUrl}}"],
+          "path": ["auth", "logout"]
+        },
+        "description": "Logout the current user and revoke the refresh token from Redis.\n\n**Authentication:** Requires Bearer access token in the `Authorization` header.\n\n**Response (200 OK):**\n```json\n{\n  \"message\": \"Successfully logged out\"\n}\n```\n\n**Error Responses:**\n- `401 Unauthorized`: Missing or invalid access token"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status code is 200', function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test('Response has success message', function () {",
+              "    const response = pm.response.json();",
+              "    pm.expect(response).to.have.property('message');",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Get Current User (Me)",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/auth/me",
+          "host": ["{{baseUrl}}"],
+          "path": ["auth", "me"]
+        },
+        "description": "Get the profile of the currently authenticated user.\n\n**Authentication:** Requires Bearer access token in the `Authorization` header.\n\n**Response (200 OK):**\n```json\n{\n  \"id\": \"clx...\",\n  \"firstName\": \"John\",\n  \"lastName\": \"Doe\",\n  \"email\": \"john.doe@example.com\"\n}\n```\n\n**Error Responses:**\n- `401 Unauthorized`: Missing or invalid access token"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status code is 200', function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test('Response has user profile', function () {",
+              "    const response = pm.response.json();",
+              "    pm.expect(response).to.have.property('id');",
+              "    pm.expect(response).to.have.property('firstName');",
+              "    pm.expect(response).to.have.property('lastName');",
+              "    pm.expect(response).to.have.property('email');",
+              "});"
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

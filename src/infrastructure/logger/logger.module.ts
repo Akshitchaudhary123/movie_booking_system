@@ -4,9 +4,7 @@ import { loggerConfig } from './logger.config';
 
 @Module({
   imports: [
-    PinoLoggerModule.forRootAsync({
-      useFactory: () => loggerConfig,
-    }),
+    PinoLoggerModule.forRoot(loggerConfig),
   ],
   exports: [PinoLoggerModule],
 })
