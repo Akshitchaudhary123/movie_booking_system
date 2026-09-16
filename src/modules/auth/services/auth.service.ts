@@ -14,8 +14,8 @@ import { RegisterDto } from '../dto/register.dto';
 import { LoginDto } from '../dto/login.dto';
 import { RefreshTokenDto } from '../dto/refresh-token.dto';
 import { TokenService, Tokens } from './token.service';
-import { RoleRepository } from 'src/modules/roles/repositories/role.repository';
 import { RoleService } from 'src/modules/roles/roles.service';
+import { UserService } from 'src/modules/users/users.service';
 
 export interface AuthUserResponse {
   id: string;
@@ -32,7 +32,7 @@ export interface AuthResponse {
 @Injectable()
 export class AuthService {
   constructor(
-    private readonly userRepository: UserRepository,
+    private readonly userService: UserService,
     private readonly tokenService: TokenService,
     private readonly roleService:RoleService
   ) {}
@@ -40,7 +40,7 @@ export class AuthService {
   async register(dto: RegisterDto): Promise<AuthResponse> {
     const { email, password, firstName, lastName } = dto;
 
-    const existingUser = await this.userRepository.findByEmail(email);
+    const existingUser = await this.userService.findByEmail(email);
     if (existingUser) {
       throw new ConflictException(USER_ERRORS.EMAIL_ALREADY_EXISTS);
     }
@@ -62,7 +62,7 @@ export class AuthService {
       roleId:customerRole.id
     };
 
-    const user = await this.userRepository.create(createUserData);
+    const user = await this.userService.create(createUserData);
 
     const tokens = this.tokenService.generateTokens(user.id);
     await this.tokenService.storeRefreshToken(user.id, tokens.refreshToken);
@@ -76,7 +76,7 @@ export class AuthService {
   async login(dto: LoginDto): Promise<AuthResponse> {
     const { email, password } = dto;
 
-    const user = await this.userRepository.findByEmail(email);
+    const user = await this.userService.findByEmail(email);
     if (!user) {
       throw new UnauthorizedException(AUTH_ERRORS.INVALID_CREDENTIALS);
     }
@@ -111,7 +111,7 @@ export class AuthService {
   }
 
   async me(userId: string): Promise<AuthUserResponse> {
-    const user = await this.userRepository.findById(userId);
+    const user = await this.userService.findById(userId);
     if (!user) {
       throw new UnauthorizedException(USER_ERRORS.USER_NOT_FOUND);
     }

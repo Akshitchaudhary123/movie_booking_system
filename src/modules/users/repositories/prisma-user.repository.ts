@@ -1,5 +1,5 @@
 import { Injectable } from "@nestjs/common";
-import { User } from "@prisma/client";
+import { User,Role } from "@prisma/client";
 import { UserRepository } from "./user.repository";
 import { CreateUserData } from "../types/user.type";
 import { PrismaService } from "../../../infrastructure/prisma/prisma.service";
@@ -27,4 +27,15 @@ export class PrismaUserRepository extends UserRepository {
       where: { id },
     });
   }
+
+  async findByIdWithRole(
+  id: string,
+): Promise<(User & { role: Role }) | null> {
+  return this.prisma.prisma.user.findUnique({
+    where: { id },
+    include: {
+      role: true,
+    },
+  });
+}
 }

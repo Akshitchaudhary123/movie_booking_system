@@ -24,8 +24,11 @@ import { Tokens } from './services/token.service';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { CurrentUser } from './decorators/current-user.decorator';
 import type { AuthenticatedUser } from './strategies/jwt.strategy';
+import { Roles } from 'src/common/decorators/roles/roles.decorator';
+import { RolesGuard } from 'src/common/guards/roles/roles.guard';
 
 @ApiTags('Authentication')
+@Roles('ADMIN')
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
@@ -128,4 +131,18 @@ export class AuthController {
   async me(@CurrentUser() user: AuthenticatedUser): Promise<AuthUserResponse> {
     return this.authService.me(user.id);
   }
+
+@UseGuards(JwtAuthGuard, RolesGuard)
+@Roles('SUPER_ADMIN')
+@Get('super-admin-test')
+adminTest() {
+  return { message: 'Admin access granted' };
+}
+
+  @Get('users')
+  @UseGuards(RolesGuard)
+  getUsers() {
+    return 'ADMIN allowed';
+  }
+
 }

@@ -14,6 +14,5 @@ export class RegisterDto {
   @IsString()
   lastName!: string;
 
-  @IsString()
-  roleId!:string;
+  
 }

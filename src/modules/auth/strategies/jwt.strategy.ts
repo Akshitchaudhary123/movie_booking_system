@@ -3,21 +3,23 @@ import { ConfigService } from '@nestjs/config';
 import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 
-import { UserRepository } from '../../users/repositories/user.repository';
 import { TokenPayload } from '../services/token.service';
+import { UserService } from 'src/modules/users/users.service';
+import { Reflector } from '@nestjs/core';
 
 export interface AuthenticatedUser {
   id: string;
   firstName: string;
   lastName: string;
   email: string;
+  role:string;
 }
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
   constructor(
     private readonly configService: ConfigService,
-    private readonly userRepository: UserRepository,
+    private readonly userService: UserService,
   ) {
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
@@ -26,8 +28,10 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
     });
   }
 
+  
+
   async validate(payload: TokenPayload): Promise<AuthenticatedUser> {
-    const user = await this.userRepository.findById(payload.sub);
+    const user = await this.userService.findByIdWithRole(payload.sub);
     if (!user) {
       throw new UnauthorizedException('User not found');
     }
@@ -37,6 +41,7 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
       firstName: user.firstName,
       lastName: user.lastName,
       email: user.email,
+      role:user.role.name
     };
   }
 }
