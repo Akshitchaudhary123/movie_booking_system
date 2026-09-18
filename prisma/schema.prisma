@@ -39,3 +39,19 @@ model Role {
   @@map("roles")
 }
 
+model Movie {
+  id          String   @id @default(cuid())
+  title       String
+  language    String
+  genre       String
+  description String?
+  duration    Int
+  releaseDate DateTime
+  certificate String
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  isActive    Boolean  @default(true)
+
+  @@map("movies")
+}
