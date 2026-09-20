@@ -1,19 +1,15 @@
 import { Movie } from '@prisma/client';
 
-export type CreateMovieData = {
-  title: string;
-  language: string;
-  genre: string;
-  description?: string;
-  duration: number;
-  releaseDate: Date;
-  certificate: string;
-};
+import type { CreateMovieData } from '../dto/create.movie.dto';
 
 export abstract class MovieRepository {
+
   abstract findById(id: string): Promise<Movie | null>;
 
   abstract findAll(): Promise<Movie[]>;
 
   abstract create(data: CreateMovieData): Promise<Movie>;
+
+  abstract findByTitleAndLanguage(title: string,language: string): Promise<Movie | null>;
+
 }

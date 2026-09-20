@@ -14,8 +14,6 @@ import { AppLoggerModule } from './infrastructure/logger/logger.module';
 import { PrismaModule } from './infrastructure/prisma/prisma.module';
 import { RedisModule } from './infrastructure/redis/redis.module';
 import { RolesModule } from './modules/roles/roles.module';
-import { APP_GUARD } from '@nestjs/core';
-import { JwtAuthGuard } from './modules/auth/guards/jwt-auth.guard';
 
 @Module({
   imports: [
@@ -38,11 +36,6 @@ import { JwtAuthGuard } from './modules/auth/guards/jwt-auth.guard';
     RolesModule,
   ],
   controllers: [],
-  providers: [
-    {
-      provide:APP_GUARD,
-      useClass:JwtAuthGuard
-    }
-  ],
+  providers: [],
 })
 export class AppModule {}

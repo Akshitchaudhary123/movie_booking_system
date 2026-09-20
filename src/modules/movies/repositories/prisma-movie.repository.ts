@@ -3,11 +3,9 @@
 import { Injectable } from '@nestjs/common';
 import { Movie } from '@prisma/client';
 
+import type { CreateMovieData } from '../dto/create.movie.dto';
 import { PrismaService } from 'src/infrastructure/prisma/prisma.service';
-import {
-  CreateMovieData,
-  MovieRepository,
-} from './movie.repository';
+import { MovieRepository } from './movie.repository';
 
 @Injectable()
 export class PrismaMovieRepository extends MovieRepository {
@@ -33,5 +31,14 @@ export class PrismaMovieRepository extends MovieRepository {
     return this.prisma.prisma.movie.create({
       data,
     });
+  }
+
+  async findByTitleAndLanguage(title: string, language: string): Promise<Movie | null> {
+    
+    return this.prisma.prisma.movie.findFirst({
+      where:{
+        title,language
+      }
+    })
   }
 }

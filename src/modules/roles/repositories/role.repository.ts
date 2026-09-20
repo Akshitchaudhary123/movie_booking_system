@@ -1,14 +1,8 @@
 
-import { Injectable } from "@nestjs/common";
-import {Role} from "@prisma/client"
+import { Role } from '@prisma/client';
 
-@Injectable()
-export abstract class RoleRepository{
+export abstract class RoleRepository {
+  abstract findByName(name: string): Promise<Role | null>;
 
-
-     abstract findByName(name:String):Promise<Role|null>
-
-     abstract findById(id:String):Promise<Role|null>
-
-
+  abstract findById(id: string): Promise<Role | null>;
 }
