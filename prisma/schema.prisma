@@ -8,22 +8,23 @@ datasource db {
 }
 
 model User {
-  id             String   @id @default(cuid())
+  id String @id @default(cuid())
 
-  firstName      String
-  lastName       String
+  firstName String
+  lastName  String
 
-  email          String   @unique
-  password       String
+  email    String    @unique
+  password String
+  theatres Theatre[]
 
-  isActive       Boolean  @default(true)
-  emailVerified  Boolean  @default(false)
+  isActive      Boolean @default(true)
+  emailVerified Boolean @default(false)
 
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-  roleId         String
-  role           Role    @relation(fields:[roleId],references:[id])
+  roleId String
+  role   Role   @relation(fields: [roleId], references: [id])
 
   @@map("users")
 }
@@ -49,9 +50,84 @@ model Movie {
   releaseDate DateTime
   certificate String
 
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  isActive    Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  isActive  Boolean  @default(true)
+  shows     Show[]
 
   @@map("movies")
+}
+
+model Theatre {
+  id      String @id @default(cuid())
+  name    String
+  address String
+  city    String
+  state   String
+  pincode String
+
+  adminId String
+  admin   User     @relation(fields: [adminId], references: [id], onDelete: Restrict)
+  screens Screen[]
+
+  isActive Boolean @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([adminId])
+  @@map("theatres")
+}
+
+model Screen {
+  id        String   @id @default(cuid())
+  name      String
+  theatreId String
+  theatre   Theatre  @relation(fields: [theatreId], references: [id], onDelete: Restrict)
+  seats     Seat[]
+  shows     Show[]
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([theatreId])
+  @@map("screens")
+}
+
+enum SeatType {
+  REGULAR
+  PREMIUM
+  RECLINER
+}
+
+model Seat {
+  id        String   @id @default(cuid())
+  screenId  String
+  screen    Screen   @relation(fields: [screenId], references: [id], onDelete: Restrict)
+  row       String
+  number    Int
+  type      SeatType
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([screenId, row, number])
+  @@map("seats")
+}
+
+model Show {
+  id        String   @id @default(cuid())
+  movieId   String
+  movie     Movie    @relation(fields: [movieId], references: [id], onDelete: Restrict)
+  screenId  String
+  screen    Screen   @relation(fields: [screenId], references: [id], onDelete: Restrict)
+  startTime DateTime
+  endTime   DateTime
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([movieId])
+  @@index([screenId])
+  @@map("shows")
 }
